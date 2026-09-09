@@ -28,7 +28,28 @@ def convert():
                         "-m", mode, "-o", str(out), "-q"], check=True)
 
 
-def contact_sheet(path, dpi=150, pad=12, label_h=26):
+FONT_CANDIDATES = [
+    "/System/Library/Fonts/Supplemental/Arial.ttf",       # macOS
+    "/System/Library/Fonts/Helvetica.ttc",                # macOS
+    "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",    # Debian/Ubuntu
+    "/usr/share/fonts/dejavu/DejaVuSans.ttf",             # Fedora
+]
+
+
+def _font(size):
+    from PIL import ImageFont
+    for path in FONT_CANDIDATES:
+        try:
+            return ImageFont.truetype(path, size)
+        except OSError:
+            continue
+    try:
+        return ImageFont.load_default(size=size)          # Pillow >= 10.1
+    except TypeError:
+        return ImageFont.load_default()
+
+
+def contact_sheet(path, dpi=150, pad=16, label_h=46, font_size=30):
     import pymupdf
     from PIL import Image, ImageDraw
 
@@ -39,13 +60,19 @@ def contact_sheet(path, dpi=150, pad=12, label_h=26):
 
     w, h = tiles[0].size
     sheet = Image.new("RGB", (len(tiles) * w + (len(tiles) + 1) * pad,
-                              h + 2 * pad + label_h), "#8a8a8a")
+                              h + 2 * pad + label_h), "white")
     draw = ImageDraw.Draw(sheet)
+    font = _font(font_size)
+
     for i, (tile, (label, _)) in enumerate(zip(tiles, PANELS)):
         x = pad + i * (w + pad)
-        sheet.paste(tile, (x, pad + label_h))
-        draw.text((x + (w - draw.textlength(label)) / 2, pad + 6),
-                  label, fill="#101010")
+        y = pad + label_h
+        sheet.paste(tile, (x, y))
+        # The original panel is white-on-white, so outline every tile.
+        draw.rectangle([x - 1, y - 1, x + w, y + h], outline="#c8c8c8", width=1)
+        tw = draw.textlength(label, font=font)
+        draw.text((x + (w - tw) / 2, pad + 2), label, fill="#111111", font=font)
+
     sheet.save(path)
     return sheet.size
 
