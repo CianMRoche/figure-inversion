@@ -1,6 +1,6 @@
 # figinvert
 
-[![CI](https://github.com/cianmroche/figure-inversion/actions/workflows/ci.yml/badge.svg)](https://github.com/cianmroche/figure-inversion/actions/workflows/ci.yml)
+[![CI](https://github.com/CianMRoche/figure-inversion/actions/workflows/ci.yml/badge.svg)](https://github.com/CianMRoche/figure-inversion/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 Dark-background versions of figures — PDF, SVG, PNG/JPG — without screenshotting
@@ -27,19 +27,19 @@ changes. Nothing is rasterised.
 You do not need to clone it to use it:
 
 ```bash
-uv tool install git+https://github.com/cianmroche/figure-inversion
+uv tool install git+https://github.com/CianMRoche/figure-inversion
 ```
 
 Or run it once without installing:
 
 ```bash
-uvx --from git+https://github.com/cianmroche/figure-inversion figinvert fig.pdf
+uvx --from git+https://github.com/CianMRoche/figure-inversion figinvert fig.pdf
 ```
 
 Or from a clone:
 
 ```bash
-git clone https://github.com/cianmroche/figure-inversion
+git clone https://github.com/CianMRoche/figure-inversion
 cd figure-inversion
 uv tool install --editable .     # --editable: source edits apply immediately
 ```
@@ -149,7 +149,7 @@ elsewhere.
 ## Development
 
 ```bash
-git clone https://github.com/cianmroche/figure-inversion
+git clone https://github.com/CianMRoche/figure-inversion
 cd figure-inversion
 uv sync --group dev
 uv run pytest -q
