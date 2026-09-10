@@ -1,6 +1,6 @@
 # figinvert
 
-[![CI](https://github.com/CianMRoche/figure-inversion/actions/workflows/ci.yml/badge.svg)](https://github.com/CianMRoche/figure-inversion/actions/workflows/ci.yml)
+[![CI](https://github.com/CianMRoche/figinvert/actions/workflows/ci.yml/badge.svg)](https://github.com/CianMRoche/figinvert/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 Command line tool to make dark-background versions of figures in PDF, SVG, PNG/JPG. PDFs and SVGs stay vectors.
@@ -18,7 +18,7 @@ in Cold Dark Matter*, The Open Journal of Astrophysics
 Requires [uv](https://docs.astral.sh/uv/getting-started/installation/).
 
 ```bash
-uv tool install git+https://github.com/CianMRoche/figure-inversion
+uv tool install git+https://github.com/CianMRoche/figinvert
 ```
 
 ## Use
@@ -70,8 +70,8 @@ try `key` for bar charts and filled regions.
 ## Development
 
 ```bash
-git clone https://github.com/CianMRoche/figure-inversion
-cd figure-inversion
+git clone https://github.com/CianMRoche/figinvert
+cd figinvert
 uv sync --group dev
 uv run pytest -q
 ```

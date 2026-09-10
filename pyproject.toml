@@ -1,5 +1,5 @@
 [project]
-name = "figure-inversion"
+name = "figinvert"
 version = "0.1.0"
 description = "Dark-background versions of figures (PDF/SVG/PNG)"
 readme = "README.md"
@@ -21,8 +21,8 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/CianMRoche/figure-inversion"
-Issues = "https://github.com/CianMRoche/figure-inversion/issues"
+Homepage = "https://github.com/CianMRoche/figinvert"
+Issues = "https://github.com/CianMRoche/figinvert/issues"
 
 [project.scripts]
 figinvert = "figinvert.cli:main"
