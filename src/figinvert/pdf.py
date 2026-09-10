@@ -219,7 +219,13 @@ def _rewrite_object(obj, fn, page_area, drop_white_bg):
     return _rewrite_instructions(instructions, fn, page_area, drop_white_bg)
 
 
-def _recolour_indexed_palette(xo, fn):
+def _objkey(obj):
+    """Indirect-object identity, or None for a direct (inline) object."""
+    key = getattr(obj, "objgen", None)
+    return key if key and key != (0, 0) else None
+
+
+def _recolour_indexed_palette(xo, fn, seen):
     """Transform an /Indexed image by rewriting its palette only.
 
     Far better than re-encoding to DeviceRGB: the pixel data (indices) is
@@ -234,6 +240,15 @@ def _recolour_indexed_palette(xo, fn):
         return False
     if cs[0] != Name.Indexed:
         return False
+
+    # Illustrator emits one shared /Indexed colour space for every image that
+    # uses the same palette, so without this the palette gets transformed once
+    # per referencing image and lands on an arbitrary colour.
+    key = _objkey(cs)
+    if key is not None:
+        if key in seen:
+            return True     # already recoloured via another image
+        seen.add(key)
     base = cs[1]
     if base == Name.DeviceRGB:
         ncomp = 3
@@ -263,7 +278,7 @@ def _recolour_indexed_palette(xo, fn):
     return True
 
 
-def _process_images(pdf, resources, fn):
+def _process_images(pdf, resources, fn, seen):
     """Recolour raster images embedded in the PDF."""
     xobjs = resources.get("/XObject")
     if xobjs is None:
@@ -273,7 +288,13 @@ def _process_images(pdf, resources, fn):
         if xo.get("/Subtype") != Name.Image:
             continue
 
-        if _recolour_indexed_palette(xo, fn):
+        key = _objkey(xo)
+        if key is not None:
+            if key in seen:
+                continue    # same image reused from another resource dict
+            seen.add(key)
+
+        if _recolour_indexed_palette(xo, fn, seen):
             continue
 
         try:
@@ -315,19 +336,19 @@ def _walk(pdf, obj, fn, page_area, drop_white_bg, seen, do_images):
     if res is None:
         return
     if do_images:
-        _process_images(pdf, res, fn)
+        _process_images(pdf, res, fn, seen)
     xobjs = res.get("/XObject")
     if xobjs is None:
         return
     for name in list(xobjs.keys()):
         xo = xobjs[name]
-        key = xo.objgen if hasattr(xo, "objgen") else None
-        if key in seen:
-            continue
-        if key is not None:
-            seen.add(key)
         if xo.get("/Subtype") != Name.Form:
             continue
+        key = _objkey(xo)
+        if key is not None:
+            if key in seen:
+                continue
+            seen.add(key)
         new = _rewrite_object(xo, fn, page_area, drop_white_bg)
         if new is not None:
             xo.write(new)
@@ -342,6 +363,7 @@ def convert_pdf(src, dst, mode="overleaf", lo=None, hi=100.0, chroma=1.0,
     fn = get_transform(mode, lo=lo, hi=hi, chroma=chroma)
 
     with pikepdf.open(src) as pdf:
+        seen = set()        # document-wide: shared objects must be done once
         for page in pdf.pages:
             box = page.get("/MediaBox", [0, 0, 612, 792])
             try:
@@ -354,13 +376,33 @@ def convert_pdf(src, dst, mode="overleaf", lo=None, hi=100.0, chroma=1.0,
             if new is not None:
                 page.Contents = pdf.make_stream(new)
 
-            _walk(pdf, page, fn, page_area, transparent, set(), recolour_images)
+            _walk(pdf, page, fn, page_area, transparent, seen, recolour_images)
 
+            _init_default_colours(pdf, page, fn)
             if not transparent:
                 _paint_background(pdf, page, fn)
 
         pdf.save(dst)
     return dst
+
+
+def _init_default_colours(pdf, page, fn):
+    """Make the implicit initial colour explicit, inverted.
+
+    A content stream that paints without ever issuing a colour operator uses
+    the initial graphics state colour, DeviceGray 0 -- black. Illustrator
+    relies on this for plain black line work, so rewriting only the operators
+    that are actually present leaves that geometry black on the new dark
+    background, i.e. invisible. Setting the inverted black up front fixes it
+    and is a no-op for streams that do set their own colours.
+
+    Page level only: a Form XObject inherits the invoking context's colour, so
+    injecting this inside one would override the caller.
+    """
+    c = fn(np.zeros(3))
+    s = (f"{c[0]:.5f} {c[1]:.5f} {c[2]:.5f} rg "
+         f"{c[0]:.5f} {c[1]:.5f} {c[2]:.5f} RG\n")
+    page.contents_add(pikepdf.Stream(pdf, s.encode()), prepend=True)
 
 
 def _paint_background(pdf, page, fn):
