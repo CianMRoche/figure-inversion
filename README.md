@@ -21,6 +21,12 @@ Requires [uv](https://docs.astral.sh/uv/getting-started/installation/).
 uv tool install git+https://github.com/CianMRoche/figinvert
 ```
 
+You may need to add the uv tools directory to your PATH variable, which can be done easily with:
+
+```bash
+uv tool update-shell
+```
+
 ## Use
 
 ```bash
