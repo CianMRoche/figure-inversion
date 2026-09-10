@@ -5,7 +5,7 @@
 
 Command line tool to make dark-background versions of figures in PDF, SVG, PNG/JPG. PDFs and SVGs stay vectors.
 
-If you still have the code to regenerate the figure, re-rendering with a dark style beats inverting, since the inverter cannot know a grey gridline needs *more* contrast on dark, not less. This is for figures whose source you no longer have, or if youre feeling a little lazy :)
+If you still have the code to regenerate the figure, re-rendering with a dark style is still prefereable. This is for figures whose source you no longer have, or if youre feeling a little lazy :)
 
 ![before and after](examples/before-after.png)
 
@@ -64,14 +64,6 @@ dropped.
 Raster graphics: `unmix` (default) best for lines and text but solid light fills go partly transparent;
 try `key` for bar charts and filled regions.
 
-
-## In LaTeX
-
-```latex
-\newif\ifdark\darktrue
-\newcommand{\fig}[2][]{%
-  \ifdark\includegraphics[#1]{#2_dark}\else\includegraphics[#1]{#2}\fi}
-```
 
 ## Development
 
