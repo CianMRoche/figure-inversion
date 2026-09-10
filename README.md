@@ -27,6 +27,18 @@ You may need to add the uv tools directory to your PATH variable, which can be d
 uv tool update-shell
 ```
 
+To update to the latest version in future:
+
+```bash
+uv tool upgrade figinvert
+```
+
+If that reports nothing to upgrade but you're out of date, the version number may not changed, so force it:
+
+```bash
+uv tool install --force --reinstall git+https://github.com/CianMRoche/figinvert
+```
+
 ## Use
 
 ```bash
