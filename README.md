@@ -33,7 +33,7 @@ To update to the latest version in future:
 uv tool upgrade figinvert
 ```
 
-If that reports nothing to upgrade but you're out of date, the version number may not changed, so force it:
+If that reports nothing to upgrade but you're out of date, the version number may not have changed, so you can force the update with:
 
 ```bash
 uv tool install --force --reinstall git+https://github.com/CianMRoche/figinvert
